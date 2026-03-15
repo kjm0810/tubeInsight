@@ -6,13 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const API_KEY = process.env.YOUTUBE_API_KEY;
 
-        const url = `https://www.googleapis.com/youtube/v3/search
-            ?part=snippet
-            &type=${type}
-            &maxResults=50
-            &q=${encodeURIComponent(searchKeyword as string)}
-            &regionCode=KR
-            &key=${API_KEY}`;
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=${type}&maxResults=50&q=${encodeURIComponent(searchKeyword as string)}&regionCode=KR&key=${API_KEY}`;
 
         console.log("YOUTUBE URL:", url);
 

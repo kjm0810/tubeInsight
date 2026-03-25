@@ -3,10 +3,10 @@
 import { YouTubeSearchResponse } from "@/type";
 import { formatKoreanDate } from "@/utils/common";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function Search() {
-    const [type, setType] = useState<string>('channel');
+    const searchType = "channel";
     const [searchKeyword, setSearchKeyword] = useState<string>('');
 
     const [searchData, setSearchData] = useState<YouTubeSearchResponse | null>(null);
@@ -20,16 +20,20 @@ export default function Search() {
         }
         setIsResultLoading(true);
         setDoSearchKeyword(searchKeyword);
-        const res = await fetch(
-            `/api/ytb?searchKeyword=${searchKeyword}&type=${type}`,
-            {
-                next: { revalidate: 36000 }
-            }
-        );
-        const data = await res.json();
-
-        setIsResultLoading(false);
-        setSearchData(data);
+        try {
+            const res = await fetch(
+                `/api/ytb?searchKeyword=${encodeURIComponent(searchKeyword)}&type=${searchType}`,
+                {
+                    next: { revalidate: 36000 }
+                }
+            );
+            const data = await res.json();
+            setSearchData(data);
+        } catch {
+            setSearchData(null);
+        } finally {
+            setIsResultLoading(false);
+        }
     }
 
     const keyDownEventHandler = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -41,12 +45,18 @@ export default function Search() {
     return (
         <div className="search-wrap">
             <div className="search-box">
-                <h1 className="site-title">
-                    Tube Insight
-                </h1>
-                <div className="inner">
-                    <input type="text" value={searchKeyword} onChange={(e)=>{setSearchKeyword(e.target.value)}} onKeyDown={keyDownEventHandler} placeholder="유튜브 채널 명을 입력해주세요." />
-                    <button type="button" onClick={getData}>검색</button>
+                <div className="search-box-inner">
+                    <div className="eyebrow">YOUTUBE ANALYTICS STUDIO</div>
+                    <h1 className="site-title">
+                        Tube Insight
+                    </h1>
+                    <p className="desc">
+                        채널 이름만 입력하면 최근 2년의 업로드 흐름과 조회수 패턴을 한눈에 살펴볼 수 있습니다.
+                    </p>
+                    <div className="inner">
+                        <input type="text" value={searchKeyword} onChange={(e)=>{setSearchKeyword(e.target.value)}} onKeyDown={keyDownEventHandler} placeholder="유튜브 채널 명을 입력해주세요." />
+                        <button type="button" onClick={getData}>분석 시작</button>
+                    </div>
                 </div>
             </div>
             
@@ -54,7 +64,7 @@ export default function Search() {
                 {
                     doSearchKeyword !== '' &&
                     <div className="searchDo">
-                        {`"${doSearchKeyword}"`}의 채널 검색 결과입니다.
+                        <span className="keyword">{`"${doSearchKeyword}"`}</span>의 채널 검색 결과입니다.
                     </div>
                 }
                 <div className="result">
@@ -86,7 +96,8 @@ export default function Search() {
                             <span className="text">
                                 채널 목록을 가져오는 중입니다.
                             </span>
-                        </div>:
+                        </div>
+                        :
                         ( searchData && searchData?.items?.length > 0) ?
                         searchData?.items.map((item: any, index: number) => {
                             return (
@@ -98,15 +109,25 @@ export default function Search() {
                                         <div className="title">
                                             { item.snippet.channelTitle }
                                         </div>
-                                        <div className="date">
-                                            { formatKoreanDate(item.snippet.publishedAt) }
+                                        <div className="date-wrap">
+                                            <span className="label">채널 개설일</span>
+                                            <span className="date">
+                                                { formatKoreanDate(item.snippet.publishedAt) }
+                                            </span>
                                         </div>
                                     </div>
+                                    <span className="hover-arrow">→</span>
                                 </Link>
                             )
-                        }):
+                        })
+                        :
+                        doSearchKeyword !== '' ?
                         <div className="no-data">
                             검색된 채널이 없습니다.
+                        </div>
+                        :
+                        <div className="idle-state">
+                            원하는 채널명을 입력하고 분석을 시작해 보세요.
                         </div>
                     }
                 </div>

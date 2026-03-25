@@ -63,13 +63,21 @@ export default function VideoWrap({videos}: {videos:any}) {
     return (
         <div className="container">
             <div className="filter-wrap">
+                <div className="filter-head">
+                    <div className="title">
+                        영상 리스트
+                    </div>
+                    <div className="desc">
+                        최근 2년 업로드 영상을 원하는 기준으로 정렬해 살펴볼 수 있습니다.
+                    </div>
+                </div>
                 <div className="filter-list">
                     {
                         filterList.map((filter: any, index: any) => {
                             return (
-                                <div key={`filter-key=${index}`} className={`filter-item ${filterType === filter.id && 'on'}`} onClick={() => {if (filterType !== filter.id) {setFilterType(filter.id)}}}>
+                                <button type="button" key={`filter-key=${index}`} className={`filter-item ${filterType === filter.id ? 'on' : ''}`} onClick={() => {if (filterType !== filter.id) {setFilterType(filter.id)}}}>
                                     {filter.name}
-                                </div>
+                                </button>
                             )
                         })
                     }
@@ -84,13 +92,15 @@ export default function VideoWrap({videos}: {videos:any}) {
                             </div>
                             <div className="right">
                                 <div className="title">
-                                    제목 {item.snippet.title}
+                                    {item.snippet.title}
                                 </div>
-                                <div className="viewer">
-                                    조회수 {Number(item.viewCount).toLocaleString()}회
-                                </div>
-                                <div className="date">
-                                    {formatKoreanDate(item.snippet.publishedAt)}
+                                <div className="meta-row">
+                                    <div className="viewer">
+                                        조회수 {Number(item.viewCount).toLocaleString()}회
+                                    </div>
+                                    <div className="date">
+                                        {formatKoreanDate(item.snippet.publishedAt)}
+                                    </div>
                                 </div>
                             </div>
                         </div>

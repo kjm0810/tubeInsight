@@ -1,6 +1,5 @@
 import DashBoard from "@/components/DashBoard";
 import VideoWrap from "@/components/VideoWrap";
-import { formatKoreanDate } from "@/utils/common";
 
 interface PageProps {
   params: {
